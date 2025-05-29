@@ -3,12 +3,9 @@ package fasthttp
 import (
 	"bufio"
 	"bytes"
-	"io"
-	"reflect"
-	"sync"
-	"unsafe"
-
 	"github.com/valyala/bytebufferpool"
+	"io"
+	"sync"
 )
 
 type headerInterface interface {
@@ -91,10 +88,6 @@ func (rs *RequestStream) Read(p []byte) (int, error) {
 	return n, err
 }
 
-func (rs *RequestStream) HeadString() (string, error) {
-	return *(*string)(bufioReaderBufPointer(rs.Reader)), nil
-}
-
 func acquireRequestStream(b *bytebufferpool.ByteBuffer, br *bufio.Reader, h headerInterface) *RequestStream {
 	rs := requestStreamPool.Get().(*RequestStream)
 	rs.PrefetchedBytes = bytes.NewReader(b.B)
@@ -116,9 +109,4 @@ var requestStreamPool = sync.Pool{
 	New: func() any {
 		return &RequestStream{}
 	},
-}
-
-func bufioReaderBufPointer(f *bufio.Reader) unsafe.Pointer {
-	val := reflect.ValueOf(f).Elem()
-	return val.FieldByName("buf").Addr().UnsafePointer()
 }
