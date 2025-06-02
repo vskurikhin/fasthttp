@@ -11,8 +11,10 @@ import (
 type PrefetchedBytesInterface interface {
 	BufIOReader() (io.Reader, error)
 	IsPrefetchedBytesEmpty() bool
-	SetPrefetchedBytes(r *bytes.Reader) error
+	SetPrefetchedBytes(buf []byte) error
 }
+
+var _ PrefetchedBytesInterface = (*Response)(nil)
 
 func (resp *Response) BufIOReader() (io.Reader, error) {
 	rs, err := getRequestStream(resp.bodyStream)
